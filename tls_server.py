@@ -14,7 +14,7 @@ logger = XmiLogger(
 
 def start_server(host: str, port: int):
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-    context.load_cert_chain(certfile="server.crt", keyfile="server.key")
+    context.load_cert_chain(certfile="fullchain.pem", keyfile="privkey.pem")
     context.verify_mode = ssl.CERT_NONE
     
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
