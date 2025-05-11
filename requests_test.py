@@ -4,7 +4,7 @@ import requests
 def test_ssl_verify():
     """测试 SSL 验证选项"""
     # 不验证 SSL 证书
-    url = "https://localhost:443"  # 使用本地服务器
+    url = "https://localhost"  # 使用本地服务器
     try:
         headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36',

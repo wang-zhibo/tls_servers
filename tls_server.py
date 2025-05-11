@@ -14,7 +14,7 @@ logger = XmiLogger(
 
 def start_server(host: str, port: int):
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-    context.load_cert_chain(certfile="fullchain.pem", keyfile="privkey.pem")
+    context.load_cert_chain(certfile="server.crt", keyfile="server.key")
     context.verify_mode = ssl.CERT_NONE
     
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -450,5 +450,4 @@ def generate_error_response(error: str, tls_info=None) -> str:
 
 
 if __name__ == "__main__":
-    # 修改为监听本地8080端口，Nginx将会代理到这个端口
-    start_server("127.0.0.1", 11443)
+    start_server("0.0.0.0", 443)
