@@ -42,9 +42,11 @@ def start_server(host: str, port: int):
                 tls_info = parse_raw_tls_data(raw_data)
                 
                 # 计算JA3指纹
-                ja3_fingerprint = calculate_ja3_fingerprint(tls_info)
+                ja3_fingerprint, ja4_fingerprint = calculate_ja3_fingerprint(tls_info)
                 if ja3_fingerprint:
                     tls_info["ja3_fingerprint"] = ja3_fingerprint
+                if ja4_fingerprint:
+                    tls_info["ja4_fingerprint"] = ja4_fingerprint
                 
                 # 初始化headers字段
                 tls_info["headers"] = {}
@@ -111,7 +113,7 @@ def handle_connection(ssl_conn: ssl.SSLSocket, addr: tuple, tls_info: Dict[str, 
         ssl_conn.close()
 
 
-def calculate_ja3_fingerprint(tls_info: Dict[str, Any]) -> Dict[str, Any]:
+def calculate_ja3_fingerprint(tls_info: Dict[str, Any]) -> tuple[Dict[str, Any], Dict[str, Any]]:
     """
     计算JA3指纹、peetprint指纹和JA4指纹
     JA3 = MD5(TLSVersion,Ciphers,Extensions,EllipticCurves,EllipticCurvePointFormats)
@@ -321,21 +323,22 @@ def calculate_ja3_fingerprint(tls_info: Dict[str, Any]) -> Dict[str, Any]:
         # 计算JA4哈希 - 使用完整JA4字符串的哈希
         ja4_hash = hashlib.md5(ja4_string.encode()).hexdigest()[:8]  # 取前8位
         
-        return {
+        return [{
             "ja3_hash": ja3_hash,
             "ja3_string": ja3_str,
             "ja3_formatted": ja3_formatted,
             "peetprint": peetprint,
             "peetprint_hash": peetprint_hash,
-            "ja4": ja4_string,
+        },
+        {
             "ja4_hash": ja4_hash,
-            "ja4_string": ja4_string,
-            # "ja4_formatted": ja4_formatted
+            "ja4_string": ja4_string
         }
+        ]
     
     except Exception as e:
         logger.error(f"计算指纹时出错: {e}")
-        return {}
+        return [{}, {}]
 
 
 def parse_raw_tls_data(data: bytes) -> Dict[str, Any]:
