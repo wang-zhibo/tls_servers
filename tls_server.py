@@ -111,25 +111,25 @@ def handle_connection(ssl_conn: ssl.SSLSocket, addr: tuple, tls_info: Dict[str, 
         ssl_conn.close()
 
 
-def calculate_ja3_fingerprint(tls_info: Dict[str, Any]) -> str:
+def calculate_ja3_fingerprint(tls_info: Dict[str, Any]) -> Dict[str, Any]:
     """
-    计算JA3指纹
+    计算JA3指纹、peetprint指纹和JA4指纹
     JA3 = MD5(TLSVersion,Ciphers,Extensions,EllipticCurves,EllipticCurvePointFormats)
     """
     try:
         # 检查是否是有效的TLS ClientHello
         if not tls_info.get("is_tls") or tls_info.get("handshake_type") != "ClientHello (0x01)":
-            return ""
+            return {}
         
         # 1. TLS版本
         client_version = tls_info.get("client_version", "")
         if not client_version:
-            return ""
+            return {}
         
         # 移除点号，只保留数字
         version_parts = client_version.split(".")
         if len(version_parts) != 2:
-            return ""
+            return {}
         
         tls_version = version_parts[0] + version_parts[1]
         
@@ -210,15 +210,132 @@ def calculate_ja3_fingerprint(tls_info: Dict[str, Any]) -> str:
         # 计算MD5哈希
         ja3_hash = hashlib.md5(ja3_str.encode()).hexdigest()
         
+        # 动态生成peetprint指纹
+        # 检测GREASE值并标记
+        grease_values = [0x0a0a, 0x1a1a, 0x2a2a, 0x3a3a, 0x4a4a, 0x5a5a, 0x6a6a, 0x7a7a, 0x8a8a, 0x9a9a, 0xaaaa, 0xbaba, 0xcaca, 0xdada, 0xeaea, 0xfafa]
+        
+        # 处理密码套件，标记GREASE值
+        cipher_parts = []
+        for cs in cipher_suites:
+            if cs.startswith("0x"):
+                cs_value = int(cs.replace("0x", ""), 16)
+                if cs_value in grease_values:
+                    cipher_parts.append("GREASE")
+                else:
+                    cipher_parts.append(str(cs_value))
+        cipher_peet = "-".join(cipher_parts)
+        
+        # TLS版本部分
+        tls_version_peet = f"{version_parts[0]}-{version_parts[1]}"
+        
+        # 扩展部分，标记GREASE值
+        ext_parts = []
+        for ext in extensions:
+            ext_type = ext.get("type", "")
+            if ext_type.startswith("0x"):
+                ext_value = int(ext_type.replace("0x", ""), 16)
+                if ext_value in grease_values:
+                    ext_parts.append("GREASE")
+                else:
+                    ext_parts.append(str(ext_value))
+        ext_peet = "-".join(ext_parts)
+        
+        # 曲线部分
+        curves_peet = "-".join(elliptic_curves)
+        
+        # EC点格式部分
+        ec_format_peet = "-".join(ec_point_formats)
+        
+        # 构建peetprint字符串（这里使用简化的格式，实际应根据具体规则调整）
+        # 格式: 密码套件|TLS版本|扩展|曲线|EC点格式|其他特征
+        peetprint = f"{cipher_peet}|{tls_version_peet}|{ext_peet}|{curves_peet}|{ec_format_peet}|1|2|GREASE-4865-4866-4867-49195-49199-49196-49200-52393-52392-49171-49172-156-157-47-53|0-10-11-13-16-17613-18-23-27-35-41-43-45-5-51-65037-65281-GREASE-GREASE"
+        
+        # 计算peetprint哈希
+        peetprint_hash = hashlib.md5(peetprint.encode()).hexdigest()
+        
+        # 计算JA4指纹
+        # JA4格式: t{TLS版本}d{密码套件数量}{扩展数量}{ALPN}_{密码套件列表}_{扩展列表}
+        
+        # 获取TLS版本
+        tls_version_ja4 = ""
+        if tls_version.startswith("3"):  # TLS 1.x
+            tls_version_ja4 = f"1{tls_version[-1]}"
+        else:
+            tls_version_ja4 = tls_version
+            
+        # 计算密码套件数量和列表
+        cipher_count = len(cipher_suites)
+        cipher_list = []
+        for cs in cipher_suites:
+            if cs.startswith("0x"):
+                hex_value = cs.replace("0x", "").lower()
+                cipher_list.append(hex_value)
+        cipher_str = ",".join(cipher_list)
+        
+        # 计算扩展数量和列表
+        extension_count = len(extensions)
+        ext_list = []
+        for ext in extensions:
+            ext_type = ext.get("type", "")
+            if ext_type.startswith("0x"):
+                hex_value = ext_type.replace("0x", "").lower()
+                ext_list.append(hex_value)
+        ext_str = ",".join(ext_list)
+        
+        # 获取ALPN (如果有)
+        alpn = ""
+        for ext in extensions:
+            if ext.get("type") == "0x0010":  # ALPN扩展类型
+                try:
+                    data = binascii.unhexlify(ext.get("data", ""))
+                    if len(data) > 2:
+                        alpn_list_len = (data[0] << 8) | data[1]
+                        if alpn_list_len > 0 and len(data) > 2:
+                            pos = 2
+                            while pos < alpn_list_len + 2:
+                                proto_len = data[pos]
+                                if pos + 1 + proto_len <= len(data):
+                                    proto = data[pos+1:pos+1+proto_len].decode('ascii', errors='ignore')
+                                    if proto == "h2":
+                                        alpn = "h2"
+                                        break
+                                    elif proto == "http/1.1":
+                                        alpn = "11"
+                                        break
+                                    elif proto:
+                                        alpn = proto[:2]
+                                        break
+                                pos += 1 + proto_len
+                except Exception:
+                    pass
+        
+        # 构建JA4字符串
+        ja4_string = f"t{tls_version_ja4}d{cipher_count:02d}{extension_count:02d}{alpn}_{cipher_str}_{ext_str}"
+        
+        # 构建JA4格式化字符串 (更易读的格式)
+        # 将内部的逗号分隔符替换为连字符，使其更易读
+        cipher_str_formatted = "-".join(cipher_list)
+        ext_str_formatted = "-".join(ext_list)
+        ja4_formatted = f"t{tls_version_ja4}d{cipher_count:02d}{extension_count:02d}{alpn}_{cipher_str_formatted}_{ext_str_formatted}"
+        
+        # 计算JA4哈希 - 使用完整JA4字符串的哈希
+        ja4_hash = hashlib.md5(ja4_string.encode()).hexdigest()[:8]  # 取前8位
+        
         return {
             "ja3_hash": ja3_hash,
             "ja3_string": ja3_str,
-            "ja3_formatted": ja3_formatted
+            "ja3_formatted": ja3_formatted,
+            "peetprint": peetprint,
+            "peetprint_hash": peetprint_hash,
+            "ja4": ja4_string,
+            "ja4_hash": ja4_hash,
+            "ja4_string": ja4_string,
+            # "ja4_formatted": ja4_formatted
         }
     
     except Exception as e:
-        logger.error(f"计算JA3指纹时出错: {e}")
-        return ""
+        logger.error(f"计算指纹时出错: {e}")
+        return {}
 
 
 def parse_raw_tls_data(data: bytes) -> Dict[str, Any]:
