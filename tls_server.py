@@ -421,6 +421,7 @@ def parse_http_headers(data: str) -> Dict[str, str]:
 
 def generate_response(success, tls_info=None) -> str:
     body = f"TLS检测成功:{success}"
+    body = ""
     
     # 如果提供了TLS信息，将其添加到响应中
     if tls_info:
@@ -428,14 +429,15 @@ def generate_response(success, tls_info=None) -> str:
     
     return (
         "HTTP/1.1 200 OK\r\n"
-        "Content-Type: text/html; charset=utf-8\r\n"
+        "Content-Type: application/json; charset=utf-8\r\n"
         "Connection: close\r\n\r\n"
-        f"TLS检测成功:{body}"
+        f"{body}"
     )
 
 
 def generate_error_response(error: str, tls_info=None) -> str:
     body = f"TLS检测失败: {error}"
+    body = ""
     
     # 如果提供了TLS信息，将其添加到响应中
     if tls_info:
@@ -443,7 +445,7 @@ def generate_error_response(error: str, tls_info=None) -> str:
     
     return (
         "HTTP/1.1 400 Bad Request\r\n"
-        "Content-Type: text/plain; charset=utf-8\r\n"
+        "Content-Type: application/json; charset=utf-8\r\n"
         "Connection: close\r\n\r\n"
         f"{body}"
     )
