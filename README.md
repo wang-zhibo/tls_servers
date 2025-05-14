@@ -1,35 +1,161 @@
 
 
 ```
+https://127.0.0.1
 
-server {
-    listen 443 ssl;
-    server_name your_domain.com;  # 替换为您的域名
 
-    # SSL/TLS 证书配置
-    ssl_certificate /path/to/your/certificate.crt;  # 替换为您的证书路径
-    ssl_certificate_key /path/to/your/private.key;  # 替换为您的私钥路径
 
-    # 优化 SSL 设置
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_prefer_server_ciphers on;
-    ssl_ciphers 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256';
-
-    # 反向代理到您的 Python 应用
-    location / {
-        proxy_pass http://127.0.0.1:11443;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
+{
+"raw_data_length": 1765,
+"is_tls": true,
+"tls_version": null,
+"handshake_type": "ClientHello (0x01)",
+"cipher_suites": [
+"0x1a1a",
+"0x1301",
+"0x1302",
+"0x1303",
+"0xc02b",
+"0xc02f",
+"0xc02c",
+"0xc030",
+"0xcca9",
+"0xcca8",
+"0xc013",
+"0xc014",
+"0x009c",
+"0x009d",
+"0x002f",
+"0x0035"
+],
+"extensions": [
+{
+"type": "0xcaca",
+"length": 0,
+"data": ""
+},
+{
+"type": "0x000b",
+"length": 2,
+"data": "0100"
+},
+{
+"type": "0x0010",
+"length": 14,
+"data": "000c02683208687474702f312e31"
+},
+{
+"type": "0xff01",
+"length": 1,
+"data": "00"
+},
+{
+"type": "0x000d",
+"length": 18,
+"data": "001004030804040105030805050108060601"
+},
+{
+"type": "0x44cd",
+"length": 5,
+"data": "0003026832"
+},
+{
+"type": "0x0023",
+"length": 0,
+"data": ""
+},
+{
+"type": "0x000a",
+"length": 12,
+"data": "000a7a7a11ec001d00170018"
+},
+{
+"type": "0x0012",
+"length": 0,
+"data": ""
+},
+{
+"type": "0x0005",
+"length": 5,
+"data": "0100000000"
+},
+{
+"type": "0x002b",
+"length": 7,
+"data": "06fafa03040303"
+},
+{
+"type": "0x001b",
+"length": 3,
+"data": "020002"
+},
+{
+"type": "0xfe0d",
+"length": 250,
+"data": "00000100013f0020108afdb981560ae50c089e7abcb8a2ed0e9007eb3dd7c75e3f3d656a6583172200d0a549ab87ef327a710ad7b4c8b2ae89a4f5d91d8cded212f08216c84e0775839a200fd6fa4a23dfbd8c1d6a3e63ccaeac0530f9acc0df0f32197ba453d10500b94dc155e8d4e5a4cff9200a56ee315a37c394d90fd480283b2dbb557044b92f49773f02cde83ad25362ba0fcec3b41834c88e69f5813a579ffd690f91e5824922cb9161a4f776dad6c8ece82688d1157604e1860184bf312ca76325b0ffacbf3585119aa52adfd7c67b4920f0c90095ea3f0546f4cbeb1cd88f6ac4c9ae05245e9e6f53c51577ae0857e2333e1a178e9b"
+},
+{
+"type": "0x0033",
+"length": 1263,
+"data": "04ed7a7a00010011ec04c0d1a07658073b7513ac4dc75dbe00a2e2c4163d3a75f016ce29948bd417780a00aaac7c646b470981f3763c22422e43a7f20a26f44ab78c23b3f2452ea9e09e742267c035071a0c34c51bccda3c3a8aeb9184f104bd095aaf285ba5e91758eaaf96249c6e1267f6c85247651e7a2906118c16e7f11016cc6d30c4449802ba2914997de1708639073d9a19ee1615d2e77a39e6c2d7264d3de8a61738ab04f241dfe25c00abcd05a125d822bc1379089df81cbfa91ad58986a88896aff083cfe680e58717a2b7b6d305ae53aa4acab73644496ca1c027d524b635d797870a2cdeb64eafb951cf45418a28a61beb66064badcfc099a17245dbb51d99eb13b187c2dd862784a20a3ba6c77d0860d321bf493460eebc12500aac2d1100690b28f7046174c14b143867dd83b1b59078d886b245b3111c1bb6048b1068dc715d6196281c077b2278f1c041d014101389cc6118888bd361fcbc563589c51a3bb3d10534ea0890aeb069c170a4603c974551c69d740a13e3138354b0775c4ccc9609e3784c83d83969661395a1af10c5a7b65caa34707ca8a791e24b4adf30a6d2a600f67b518ad9704d9806bb01555d648a8e491bb700532e1711019a530c97abe4b0720eec18f219304f9b6e8d22001f1868a5d049bc4b51582b8e8c09727a7a6814a3096180c253118bf126361e4411c78a8ba4e8965758b4a5037295987d36033096f3c040979a03a3763afc1e1bd87e5a16bf5bdb924914180f6492ed614b80b31d2893519cd23d7e30617e91bcab184cb016c2b4da4864c1cc4dc256134a16d9fca60b7a21e078212669c485fc097b02c0512656a70654424b54c767a951e667abc031302386d91b1964d2cf7458bafc8a59c728a75cf81d9707b50db39e4984829ffc974f5c42466451f495937b547fd331045c58438bfc5b4c234f4869b8175bc93c4b21982698e69271b0c66c2efccfef6a96690a80d4f7aba49b0511080f00e07f05b15169f18c87aa11e723112b045c13256d77b9c8336413ede06681938e70cbbaae883d2cb66c32d81e0ae2a55f9180f2f77f95d7bc7e7b0e7d71ae64e832c0620c3331b1a551670bf3284868805805ab4471b3e1d90af55219875aaaf2db60f2726a255ab2ddb5821a8420129b9809a873143891652510105b41978353d7137a73e5b930206edad207a8d63c7e7c74d0dc14f446717997466c621328e1aee92884cd7049fba42a58c15a160654d3d8829d036938a170e6289e95fa16bb83bb9efa9f51a6935e895083269799568e0d0769cdda6daab6cb30a58081c59704bc82a41c07d4392106e347d29570d8e2cb4bf500d2dc1ac09c0c0fd9c6a7c3958e35476cf796ddc086f9c71568ca881dd81c7abaa812831981a804f1db96294b5c28650c3805bb9073690ceb39db936277f720d9908748630e57552bd3e962da403b81523c311b48212bbc37246fadeb0db3531f0ab61bb6f31e90a67b57da0c4949c86249ab04a6007911a8ecfcbe971220d696389943874aa599018c8b73aa80d0f047bfc882b46cca9361cbea497f277a9ece7416e087173dd68ea7628a8daababea0af9ef5661e5265c224ad9136cc337980edbb75fd29b0ea619a49ac88a60f9c61a347caf49aa6ea49c0b040a5fe5021e86e3184dd01159c17c162e722cbef60074dc9c22a35874298347e8b8dba7f71e1c45e23fd6ba33a84a21e8b20001d00204be19d55721391dbb0dc8f571e00d23f427a114204f74af065adbe26fe749002"
+},
+{
+"type": "0x0017",
+"length": 0,
+"data": ""
+},
+{
+"type": "0x002d",
+"length": 2,
+"data": "0101"
+},
+{
+"type": "0x2a2a",
+"length": 1,
+"data": "00"
+}
+],
+"content_type": "Handshake (0x16)",
+"tls_record_version": "3.1",
+"record_length": 1760,
+"handshake_length": 1756,
+"client_version": "3.3",
+"client_random": "c8d4904e00c55b75a7c94971c35c2dad642f9192ad9ddca4c38e404d14ce38a8",
+"session_id_length": 32,
+"session_id": "d152f369a5727c69aeb86ce2781af9e1d79840ae28d6616496df820eddced230",
+"cipher_suites_length": 32,
+"compression_methods_length": 1,
+"compression_methods": "00",
+"extensions_length": 1651,
+"ja3_fingerprint": {
+"ja3_hash": "0543a17ef37122b9f01afc581b80e7eb",
+"ja3_string": "33,1a1a,1301,1302,1303,c02b,c02f,c02c,c030,cca9,cca8,c013,c014,009c,009d,002f,0035,51914,11,16,65281,13,17613,35,10,18,5,43,27,65037,51,23,45,10794,31354,4588,29,23,24,0",
+"ja3_formatted": "33,6682-4865-4866-4867-49195-49199-49196-49200-52393-52392-49171-49172-156-157-47-53,51914-11-16-65281-13-17613-35-10-18-5-43-27-65037-51-23-45-10794,31354-4588-29-23-24,0",
+"peetprint": "GREASE-4865-4866-4867-49195-49199-49196-49200-52393-52392-49171-49172-156-157-47-53|3-3|GREASE-11-16-65281-13-17613-35-10-18-5-43-27-65037-51-23-45-GREASE|31354-4588-29-23-24|0|1|2|GREASE-4865-4866-4867-49195-49199-49196-49200-52393-52392-49171-49172-156-157-47-53|0-10-11-13-16-17613-18-23-27-35-41-43-45-5-51-65037-65281-GREASE-GREASE",
+"peetprint_hash": "98c8e2d778f23e9fd4aa9420ac8c75ad"
+},
+"headers": {
+"Method": "GET",
+"Path": "/",
+"Protocol": "HTTP/1.1",
+"Host": "192.168.20.94",
+"Connection": "keep-alive",
+"sec-ch-ua": "\"Google Chrome\";v=\"135\", \"Not-A.Brand\";v=\"8\", \"Chromium\";v=\"135\"",
+"sec-ch-ua-mobile": "?0",
+"sec-ch-ua-platform": "\"macOS\"",
+"DNT": "1",
+"Upgrade-Insecure-Requests": "1",
+"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
+"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+"Sec-Fetch-Site": "none",
+"Sec-Fetch-Mode": "navigate",
+"Sec-Fetch-User": "?1",
+"Sec-Fetch-Dest": "document",
+"Accept-Encoding": "gzip, deflate, br, zstd",
+"Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8"
+}
 }
 
-# HTTP 重定向到 HTTPS
-server {
-    listen 80;
-    server_name your_domain.com;  # 替换为您的域名
-    return 301 https://$host$request_uri;
-}
+
 
 ```
